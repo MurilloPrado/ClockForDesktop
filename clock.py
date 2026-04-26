@@ -1,10 +1,12 @@
 import tkinter as tk
 from time import strftime
+import time
 from screeninfo import get_monitors
 import threading
 import pystray
 from pystray import MenuItem as item
 from PIL import Image, ImageDraw
+from trayIconManager import TrayIconManager
 
 # =================== UTILS =====================
 
@@ -26,20 +28,24 @@ def quitApp(icon, menuItem):
     root.destroy()
 
 def createTrayIcon():
-    # ícone simples preto com quadrado branco
-    image = Image.new("RGB", (64, 64), "black")
-    draw = ImageDraw.Draw(image)
-    draw.rectangle((16, 16, 48, 48), fill="white")
+    trayIcon = pystray.Icon("Clock")
 
-    trayIcon = pystray.Icon(
-        "Clock",
-        image,
-        "Digital Clock",
-        menu=pystray.Menu(
-            item("Mostrar / Esconder", showHideWindow),
-            item("Sair", quitApp)
-        )
+    trayManager = TrayIconManager()
+
+    trayIcon.menu = pystray.Menu(
+        item("Mostrar / Esconder", showHideWindow),
+        item("Sair", quitApp)
     )
+
+    def updateTrayIcon():
+        while True:
+            trayIcon.icon = trayManager.getCurrentFrame()
+            time.sleep(60)
+
+    threading.Thread(
+        target=updateTrayIcon,
+        daemon=True
+    ).start()
 
     trayIcon.run()
 
