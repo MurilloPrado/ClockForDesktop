@@ -7,6 +7,7 @@ import pystray
 from pystray import MenuItem as item
 from PIL import Image, ImageDraw
 from trayIconManager import TrayIconManager
+from clockSettings import ClockSettingsWindow
 
 # =================== UTILS =====================
 
@@ -34,6 +35,7 @@ def createTrayIcon():
 
     trayIcon.menu = pystray.Menu(
         item("Mostrar / Esconder", showHideWindow),
+        item("Configurações", openSettings),
         item("Sair", quitApp)
     )
 
@@ -48,6 +50,9 @@ def createTrayIcon():
     ).start()
 
     trayIcon.run()
+
+def openSettings():
+    ClockSettingsWindow()
 
 # ==========================================================
 
