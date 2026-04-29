@@ -1,13 +1,14 @@
 import tkinter as tk
 from time import strftime
 import time
-from screeninfo import get_monitors
 import threading
 import pystray
 from pystray import MenuItem as item
 from PIL import Image, ImageDraw
+
 from trayIconManager import TrayIconManager
 from ui.clockSettings import ClockSettingsWindow
+from services.monitorManager import MonitorManagerService
 
 # =================== UTILS =====================
 
@@ -52,7 +53,7 @@ def createTrayIcon():
     trayIcon.run()
 
 def openSettings():
-    ClockSettingsWindow()
+    ClockSettingsWindow(root, selectedMonitorIndex)
 
 # ==========================================================
 
@@ -60,12 +61,20 @@ def openSettings():
 root = tk.Tk()
 root.title("Clock")
 
-# pegar o monitor 1 (DISPLAY1)
-monitors = get_monitors()
-monitor1 = next(m for m in monitors if m.name == '\\\\.\\DISPLAY1')
+# monitor selecionado
+selectedMonitorIndex = 0
 
-x = monitor1.x + monitor1.width - 200
-y = monitor1.y + 20
+# pegar lista de monitores
+monitors = MonitorManagerService.getMonitors()
+
+# escolher monitor pelo índice
+selectedMonitor = next(
+    (monitor for monitor in monitors if monitor["index"] == selectedMonitorIndex),
+    monitors[0]
+)
+
+x = selectedMonitor["x"] + selectedMonitor["width"] - 200
+y = selectedMonitor["y"] + 20
 
 # remove borda
 root.overrideredirect(True)
