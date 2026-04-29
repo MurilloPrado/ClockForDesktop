@@ -9,6 +9,7 @@ from PIL import Image, ImageDraw
 from trayIconManager import TrayIconManager
 from ui.clockSettings import ClockSettingsWindow
 from services.monitorManager import MonitorManagerService
+from services.positionManager import ClockPositionManager
 
 # =================== UTILS =====================
 
@@ -63,6 +64,7 @@ root.title("Clock")
 
 # monitor selecionado
 selectedMonitorIndex = 0
+selectedPosition = "topRight"
 
 # pegar lista de monitores
 monitors = MonitorManagerService.getMonitors()
@@ -73,9 +75,11 @@ selectedMonitor = next(
     monitors[0]
 )
 
-x = selectedMonitor["x"] + selectedMonitor["width"] - 200
-y = selectedMonitor["y"] + 20
-
+# posição do relógio
+x, y = ClockPositionManager.getClockPosition(   
+    selectedMonitor,
+    selectedPosition
+)
 # remove borda
 root.overrideredirect(True)
 

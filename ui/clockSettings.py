@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from services.monitorManager import MonitorManagerService
+from services.positionManager import ClockPositionManager
 
 
 class ClockSettingsWindow:
@@ -22,59 +23,75 @@ class ClockSettingsWindow:
         )
         container.pack(fill="both", expand=True)
 
-        # título
-        titleLabel = tk.Label(
+        # =========================
+        # MONITOR 
+        # =========================
+        monitorLabel = tk.Label(
             self.window,
-            text="Escolha o monitor do relógio",
-            font=("Arial", 12)
+            text="Escolha o monitor"
         )
-        titleLabel.pack(pady=(0, 20))
+        monitorLabel.pack(pady=(20, 5))
 
-        # buscar monitores
-        self.monitors = MonitorManagerService.getMonitors()
-
-        # montar lista de exibição
-        monitorOptions = []
-
-        for monitor in self.monitors:
-            label = (
-                f'Monitor {monitor["index"] + 1} '
-                f'- {monitor["width"]}x{monitor["height"]}'
-            )
-            monitorOptions.append(label)
-
-        # variável do combobox
-        self.selectedMonitor = tk.StringVar()
-
-        # combobox
         self.monitorCombobox = ttk.Combobox(
             self.window,
-            textvariable=self.selectedMonitor,
-            values=monitorOptions,
             state="readonly",
             width=35
         )
-        self.monitorCombobox.pack(pady=10)
+        self.monitorCombobox.pack()
 
-        # selecionar primeiro monitor por padrão
-        if monitorOptions:
-            self.monitorCombobox.current(0)
+        self.loadMonitors()
+        
+        # =========================
+        # POSITION
+        # =========================
+        positionLabel = tk.Label(
+            self.window,
+            text="Escolha a posição"
+        )
+        positionLabel.pack(pady=(20, 5))
 
-        # botão salvar
+        self.positionMap = {
+            "Topo Esquerdo": "topLeft",
+            "Topo Direito": "topRight",
+            "Baixo Esquerdo": "bottomLeft",
+            "Baixo Direito": "bottomRight"
+        }
+
+        self.positionCombobox = ttk.Combobox(
+            self.window,
+            values=list(self.positionMap.keys()),
+            state="readonly",
+            width=35
+        )
+        self.positionCombobox.pack()
+
+        self.positionCombobox.current(1)  # Topo Direito
+
+        # =========================
+        # SAVE BUTTON
+        # =========================
         saveButton = tk.Button(
             self.window,
             text="Salvar",
             command=self.saveSettings
         )
-        saveButton.pack(pady=20)
+        saveButton.pack(pady=30)
+
 
     def saveSettings(self):
-        selectedIndex = self.monitorCombobox.current()
+        selectedMonitorIndex = self.monitorCombobox.current()
 
-        selectedMonitor = self.monitors[selectedIndex]
+        selectedPositionLabel = self.positionCombobox.get()
+        selectedPosition = self.positionMap[selectedPositionLabel]
+        selectedMonitor = self.monitors[selectedMonitorIndex]
 
-        x = selectedMonitor["x"] + selectedMonitor["width"] - 200
-        y = selectedMonitor["y"] + 20
+        print("Monitor:", selectedMonitorIndex)
+        print("Position:", selectedPosition)
+
+        x, y = ClockPositionManager.getClockPosition(
+            selectedMonitor,
+            selectedPosition
+        )
 
         self.root.geometry(f"+{x}+{y}")
 
@@ -82,21 +99,20 @@ class ClockSettingsWindow:
     def loadMonitors(self):
         self.monitors = MonitorManagerService.getMonitors()
 
-        monitorLabels = []
+        monitorOptions = []
 
         for monitor in self.monitors:
             label = (
-                f"Monitor {monitor['index'] + 1} | "
-                f"{monitor['width']}x{monitor['height']} | "
-                f"{monitor['name']}"
+                f'Monitor {monitor["index"] + 1} '
+                f'- {monitor["width"]}x{monitor["height"]}'
             )
 
             if monitor["isPrimary"]:
                 label += " (Principal)"
 
-            monitorLabels.append(label)
+            monitorOptions.append(label)
 
-        self.monitorSelect["values"] = monitorLabels
+        self.monitorCombobox["values"] = monitorOptions
 
-        if monitorLabels:
-            self.monitorSelect.current(0)
+        if monitorOptions:
+            self.monitorCombobox.current(self.currentMonitorIndex)
