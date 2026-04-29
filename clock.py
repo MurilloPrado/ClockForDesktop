@@ -7,7 +7,7 @@ import pystray
 from pystray import MenuItem as item
 from PIL import Image, ImageDraw
 from trayIconManager import TrayIconManager
-from clockSettings import ClockSettingsWindow
+from ui.clockSettings import ClockSettingsWindow
 
 # =================== UTILS =====================
 
