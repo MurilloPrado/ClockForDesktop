@@ -18,23 +18,60 @@ class ClockSettingsWindow:
         self.buildLayout()
 
     def buildLayout(self):
-        container = ttk.Frame(
-            self.window,
-            padding=20
+        # container principal
+        mainFrame = ttk.Frame(self.window)
+        mainFrame.pack(fill="both", expand=True)
+
+        # canvas
+        canvas = tk.Canvas(mainFrame, borderwidth=0, highlightthickness=0)
+        canvas.pack(side="left", fill="both", expand=True)
+
+        # scrollbar
+        scrollbar = ttk.Scrollbar(
+            mainFrame,
+            orient="vertical",
+            command=canvas.yview
         )
-        container.pack(fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        # frame interno (conteúdo)
+        self.container = ttk.Frame(canvas, padding=20)
+
+        # coloca frame dentro do canvas
+        canvas.create_window((0, 0), window=self.container, anchor="n")
+
+        def onCanvasConfigure(event):
+            # Ajusta a largura da janela interna para ser igual à do canvas
+            canvas.itemconfig(canvas_window, width=event.width)
+
+        canvas.bind("<Configure>", onCanvasConfigure)
+        # Armazene o ID da janela para referência:
+        canvas_window = canvas.create_window((0, 0), window=self.container, anchor="nw")
+
+        # ajusta scroll automático
+        def onConfigure(event):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+
+        self.container.bind("<Configure>", onConfigure)
+
+        def onMouseWheel(event):
+            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+        canvas.bind_all("<MouseWheel>", onMouseWheel)
 
         # =========================
         # MONITOR 
         # =========================
         monitorLabel = tk.Label(
-            self.window,
+            self.container,
             text="Monitor"
         )
-        monitorLabel.pack(pady=(20, 5))
+        monitorLabel.pack(pady=(10, 5))
 
         self.monitorCombobox = ttk.Combobox(
-            self.window,
+            self.container,
             state="readonly",
             width=35
         )
@@ -46,10 +83,10 @@ class ClockSettingsWindow:
         # POSITION
         # =========================
         positionLabel = tk.Label(
-            self.window,
+            self.container,
             text="Posição"
         )
-        positionLabel.pack(pady=(20, 5))
+        positionLabel.pack(pady=(10, 5))
 
         self.positionMap = {
             "Superior Esquerdo": "topLeft",
@@ -59,7 +96,7 @@ class ClockSettingsWindow:
         }
 
         self.positionCombobox = ttk.Combobox(
-            self.window,
+            self.container,
             values=list(self.positionMap.keys()),
             state="readonly",
             width=35
@@ -73,10 +110,10 @@ class ClockSettingsWindow:
         # =========================
         # cor da fonte
         colorLabel = tk.Label(
-            self.window,
+            self.container,
             text="Cor da fonte"
         )
-        colorLabel.pack(pady=(20, 5))
+        colorLabel.pack(pady=(10, 5))
 
         self.colorMap = {
             "Branco": "white",
@@ -87,7 +124,7 @@ class ClockSettingsWindow:
         }
 
         self.colorCombobox = ttk.Combobox(
-            self.window,
+            self.container,
             values=list(self.colorMap.keys()),
             state="readonly",
             width=35
@@ -97,10 +134,10 @@ class ClockSettingsWindow:
 
         # cor de fundo
         bgColorLabel = tk.Label(
-            self.window,
+            self.container,
             text="Cor de fundo"
         )
-        bgColorLabel.pack(pady=(20, 5))
+        bgColorLabel.pack(pady=(10, 5))
 
         self.bgColorMap = {
             "None": None,
@@ -111,7 +148,7 @@ class ClockSettingsWindow:
         }
 
         self.bgColorCombobox = ttk.Combobox(
-            self.window,
+            self.container,
             values=list(self.bgColorMap.keys()),
             state="readonly",
             width=35
@@ -123,12 +160,11 @@ class ClockSettingsWindow:
         # SAVE BUTTON
         # =========================
         saveButton = tk.Button(
-            self.window,
+            self.container,
             text="Salvar",
             command=self.saveSettings
         )
         saveButton.pack(pady=30)
-
 
     def saveSettings(self):
         # Monitor e posição
