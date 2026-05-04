@@ -1,12 +1,13 @@
 import tkinter as tk
 from tkinter import ttk
+from services.configManager import ConfigManager
 from services.monitorManager import MonitorManagerService
 from services.positionManager import ClockPositionManager
 from services.colorManager import ColorManager
 
 
 class ClockSettingsWindow:
-    def __init__(self, root, selectedMonitorIndex):
+    def __init__(self, root, selectedMonitorIndex, label):
         self.window = tk.Toplevel()
         self.window.title("Configurações do Relógio")
         self.window.geometry("400x250")
@@ -14,6 +15,7 @@ class ClockSettingsWindow:
 
         self.root = root
         self.currentMonitorIndex = selectedMonitorIndex
+        self.label = label
 
         self.buildLayout()
 
@@ -190,7 +192,7 @@ class ClockSettingsWindow:
             selectedFgColor
         )
 
-        self.root.children['!label'].config(
+        self.label.config(
             fg=appearance["fg"],
             bg=self.root["bg"] if appearance["transparent"] else appearance["bg"]
         )
@@ -199,6 +201,14 @@ class ClockSettingsWindow:
             self.root.attributes("-transparentcolor", self.root["bg"])
         else:
             self.root.attributes("-transparentcolor", "")
+
+        # Salvar configurações
+        ConfigManager.save({
+            "monitorIndex": selectedMonitorIndex,
+            "position": selectedPosition,
+            "bgColor": selectedBgColor,
+            "fgColor": selectedFgColor
+        })
 
     
     def loadMonitors(self):

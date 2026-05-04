@@ -10,8 +10,11 @@ from trayIconManager import TrayIconManager
 from ui.clockSettings import ClockSettingsWindow
 from services.monitorManager import MonitorManagerService
 from services.positionManager import ClockPositionManager
+from services.configManager import ConfigManager
 
 # =================== UTILS =====================
+
+config = ConfigManager.load()
 
 def updateTime():
     time_string = strftime('%H:%M:%S')
@@ -54,7 +57,7 @@ def createTrayIcon():
     trayIcon.run()
 
 def openSettings():
-    ClockSettingsWindow(root, selectedMonitorIndex)
+    ClockSettingsWindow(root, selectedMonitorIndex, label)
 
 # ==========================================================
 
@@ -63,10 +66,10 @@ root = tk.Tk()
 root.title("Clock")
 
 # configurações iniciais
-selectedMonitorIndex = 0
-selectedPosition = "topRight"
-selectedBgColor = "black"
-selectedFgColor = "white"
+selectedMonitorIndex = config["monitorIndex"]
+selectedPosition = config["position"]
+selectedBgColor = config["bgColor"]
+selectedFgColor = config["fgColor"]
 
 # pegar lista de monitores
 monitors = MonitorManagerService.getMonitors()
