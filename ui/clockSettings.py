@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from services.monitorManager import MonitorManagerService
 from services.positionManager import ClockPositionManager
+from services.colorManager import ColorManager
 
 
 class ClockSettingsWindow:
@@ -28,7 +29,7 @@ class ClockSettingsWindow:
         # =========================
         monitorLabel = tk.Label(
             self.window,
-            text="Escolha o monitor"
+            text="Monitor"
         )
         monitorLabel.pack(pady=(20, 5))
 
@@ -46,15 +47,15 @@ class ClockSettingsWindow:
         # =========================
         positionLabel = tk.Label(
             self.window,
-            text="Escolha a posição"
+            text="Posição"
         )
         positionLabel.pack(pady=(20, 5))
 
         self.positionMap = {
-            "Topo Esquerdo": "topLeft",
-            "Topo Direito": "topRight",
-            "Baixo Esquerdo": "bottomLeft",
-            "Baixo Direito": "bottomRight"
+            "Superior Esquerdo": "topLeft",
+            "Superior Direito": "topRight",
+            "Inferior Esquerdo": "bottomLeft",
+            "Inferior Direito": "bottomRight"
         }
 
         self.positionCombobox = ttk.Combobox(
@@ -65,7 +66,58 @@ class ClockSettingsWindow:
         )
         self.positionCombobox.pack()
 
-        self.positionCombobox.current(1)  # Topo Direito
+        self.positionCombobox.current(1)  # Superior Direito
+
+        # =========================
+        # COLORS
+        # =========================
+        # cor da fonte
+        colorLabel = tk.Label(
+            self.window,
+            text="Cor da fonte"
+        )
+        colorLabel.pack(pady=(20, 5))
+
+        self.colorMap = {
+            "Branco": "white",
+            "Preto": "black",
+            "Vermelho": "red",
+            "Verde": "green",
+            "Azul": "blue"
+        }
+
+        self.colorCombobox = ttk.Combobox(
+            self.window,
+            values=list(self.colorMap.keys()),
+            state="readonly",
+            width=35
+        )
+        self.colorCombobox.pack()
+        self.colorCombobox.current(0)
+
+        # cor de fundo
+        bgColorLabel = tk.Label(
+            self.window,
+            text="Cor de fundo"
+        )
+        bgColorLabel.pack(pady=(20, 5))
+
+        self.bgColorMap = {
+            "None": None,
+            "Preto": "black",
+            "Branco": "white",
+            "Cinza": "gray",
+            "Azul Escuro": "#1e1e1e"
+        }
+
+        self.bgColorCombobox = ttk.Combobox(
+            self.window,
+            values=list(self.bgColorMap.keys()),
+            state="readonly",
+            width=35
+        )
+        self.bgColorCombobox.pack()
+        self.bgColorCombobox.current(0)
 
         # =========================
         # SAVE BUTTON
@@ -79,14 +131,12 @@ class ClockSettingsWindow:
 
 
     def saveSettings(self):
+        # Monitor e posição
         selectedMonitorIndex = self.monitorCombobox.current()
 
         selectedPositionLabel = self.positionCombobox.get()
         selectedPosition = self.positionMap[selectedPositionLabel]
         selectedMonitor = self.monitors[selectedMonitorIndex]
-
-        print("Monitor:", selectedMonitorIndex)
-        print("Position:", selectedPosition)
 
         x, y = ClockPositionManager.getClockPosition(
             selectedMonitor,
@@ -94,6 +144,25 @@ class ClockSettingsWindow:
         )
 
         self.root.geometry(f"+{x}+{y}")
+
+        # Colors
+        selectedBgColor = self.bgColorMap[self.bgColorCombobox.get()]
+        selectedFgColor = self.colorMap[self.colorCombobox.get()]
+
+        appearance = ColorManager.getColors(
+            selectedBgColor,
+            selectedFgColor
+        )
+
+        self.root.children['!label'].config(
+            fg=appearance["fg"],
+            bg=self.root["bg"] if appearance["transparent"] else appearance["bg"]
+        )
+
+        if appearance["transparent"]:
+            self.root.attributes("-transparentcolor", self.root["bg"])
+        else:
+            self.root.attributes("-transparentcolor", "")
 
     
     def loadMonitors(self):

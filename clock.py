@@ -4,8 +4,8 @@ import time
 import threading
 import pystray
 from pystray import MenuItem as item
-from PIL import Image, ImageDraw
 
+from services.colorManager import ColorManager
 from trayIconManager import TrayIconManager
 from ui.clockSettings import ClockSettingsWindow
 from services.monitorManager import MonitorManagerService
@@ -62,12 +62,15 @@ def openSettings():
 root = tk.Tk()
 root.title("Clock")
 
-# monitor selecionado
+# configurações iniciais
 selectedMonitorIndex = 0
 selectedPosition = "topRight"
+selectedBgColor = "black"
+selectedFgColor = "white"
 
 # pegar lista de monitores
 monitors = MonitorManagerService.getMonitors()
+
 
 # escolher monitor pelo índice
 selectedMonitor = next(
@@ -80,16 +83,34 @@ x, y = ClockPositionManager.getClockPosition(
     selectedMonitor,
     selectedPosition
 )
-# remove borda
-root.overrideredirect(True)
 
 # sempre no topo
 root.attributes("-topmost", True)
 
-# posição (ajuste aqui)
+# posição da janela
 root.geometry(f"+{x}+{y}")
 
-label = tk.Label(root, font=("Arial", 30), bg="black", fg="white")
+appearance = ColorManager.getColors(
+    selectedBgColor,
+    selectedFgColor,
+)
+
+# remove borda
+root.overrideredirect(True)
+
+root.configure(bg="black")
+
+# transparência
+if appearance["transparent"]:
+    root.attributes("-transparentcolor", "black")
+
+label = tk.Label(
+    root,   
+    font=("Arial", 30),
+    bg="black" if appearance["transparent"] else appearance["bg"],
+    fg=appearance["fg"]
+)
+
 label.pack()
 
 
