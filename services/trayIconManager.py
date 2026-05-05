@@ -1,6 +1,8 @@
 from datetime import datetime
 from PIL import Image
 
+from services.configManager import getAssetPath
+
 class TrayIconManager:
     def __init__(self):
         self.iconFrames = []
@@ -8,7 +10,7 @@ class TrayIconManager:
 
     def loadIcons(self):
         for i in range(1, 65):
-            fileName = f"icons/{i:02}.png"
+            fileName = getAssetPath(f"icons/{i:02}.png")
             image = Image.open(fileName)
             self.iconFrames.append(image)
 

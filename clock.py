@@ -6,7 +6,7 @@ import pystray
 from pystray import MenuItem as item
 
 from services.colorManager import ColorManager
-from trayIconManager import TrayIconManager
+from services.trayIconManager import TrayIconManager
 from ui.clockSettings import ClockSettingsWindow
 from services.monitorManager import MonitorManagerService
 from services.positionManager import ClockPositionManager
@@ -73,7 +73,6 @@ selectedFgColor = config["fgColor"]
 
 # pegar lista de monitores
 monitors = MonitorManagerService.getMonitors()
-
 
 # escolher monitor pelo índice
 selectedMonitor = next(
