@@ -1,9 +1,23 @@
 import json
 import os
+import sys
+import os
 
+def getAssetPath(relativePath):
+    if getattr(sys, 'frozen', False):
+        basePath = sys._MEIPASS
+    else:
+        basePath = os.path.abspath(".")
+
+    return os.path.join(basePath, relativePath)
 
 class ConfigManager:
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+    if getattr(sys, 'frozen', False):
+        BASE_DIR = os.path.dirname(sys.executable)
+    else:
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    
     CONFIG_PATH = os.path.join(BASE_DIR, "..", "config", "settings.json")
 
     DEFAULT_CONFIG = {
